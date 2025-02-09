@@ -64,11 +64,12 @@ public class GetAccessToken extends Thread{
                 responseJSON = JSONObject.parseObject(response.body().string());
                 accessToken = responseJSON.getString("access_token");
                 Main.logger.info("AccessToken已刷新");
+                scheduler.schedule(this,Integer.parseInt(responseJSON.getString("expires_in")),TimeUnit.SECONDS);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         };
-        scheduler.scheduleAtFixedRate(task,0,Integer.parseInt(responseJSON.getString("expires_in")),TimeUnit.SECONDS);
+        scheduler.schedule(task,0,TimeUnit.SECONDS);
         cycle = scheduler;
     }
     public String getAccessToken(){

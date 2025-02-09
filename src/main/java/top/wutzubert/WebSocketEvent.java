@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class WebSocketEvent extends WebSocketClient {
     private String appId;
     private String token;
+    private String sessionID;
     private int d;
     public WebSocketEvent(URI uri,String appId,String token){
         super(uri);
@@ -45,7 +46,10 @@ public class WebSocketEvent extends WebSocketClient {
         } else if (op == 0) {
             String type = response.getString("t");
             switch (type){
-                case "READY"->Main.logger.info("服务器鉴权成功，事件监听已开启");
+                case "READY"->{
+                    sessionID = response.getJSONObject("d").getString("session_id");
+                    Main.logger.info("服务器鉴权成功，事件监听已开启");
+                }
                 case "GROUP_AT_MESSAGE_CREATE"->{
                     Group group = new Group(response.getJSONObject("d").getString("group_id"));
                     String content = response.getJSONObject("d").getString("content");
@@ -129,6 +133,17 @@ public class WebSocketEvent extends WebSocketClient {
     @Override
     public void onClose(int code, String reason, boolean remote) {
         Main.logger.info("WebSocket连接断开，状态码"+code+"，原因:"+reason);
+        this.reconnect();
+        Main.logger.info("尝试重连");
+        this.send("{\n" +
+                "  \"op\": 6,\n" +
+                "  \"d\": {\n" +
+                "    \"token\": \""+token+"\",\n" +
+                "    \"session_id\": \""+sessionID+"\",\n" +
+                "    \"seq\": "+d+"\n" +
+                "  }\n" +
+                "}");
+        Main.logger.info("重连成功，RESUMED信息已上发");
     }
 
     @Override

@@ -1,0 +1,36 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+}
+jar {
+    manifest {
+        attributes 'Main-Class': 'top.wutzubert.Main'
+    }
+}
+
+group = 'top.wutzubert'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'com.alibaba:fastjson:1.2.83'
+    implementation 'com.squareup.okhttp3:okhttp:3.14.7'
+    implementation 'org.java-websocket:Java-WebSocket:1.5.2'
+}
+
+test {
+    useJUnitPlatform()
+}
+shadowJar {
+    archiveBaseName.set('TakanashiUtsu')
+    archiveVersion.set('0.0.1')
+    archiveClassifier.set('')
+}
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
